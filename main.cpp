@@ -63,6 +63,8 @@ bool moving_light_state = false;
 // Indica a camera
 int camera_presets = 0;
 
+std::ofstream myfile;
+
 void transformObjects()
 {
   // Aplicando transformações no objeto selecionado
@@ -113,6 +115,7 @@ void grid()
 void saveScene()
 {
   // Pegar todos os objetos, e salvar no arquivo save
+
   std::ifstream f("save.json");
 
   // Limpar o arquivo (precaução)
@@ -367,10 +370,6 @@ void readSave()
       {
         objetos.push_back(new Microfone(id, t_x, t_y, t_z, r_x, r_y, r_z, s_x, s_y, s_z, false, false));
       }
-      else if (classe == "Cobertura")
-      {
-        objetos.push_back(new Cobertura(id, t_x, t_y, t_z, r_x, r_y, r_z, s_x, s_y, s_z, false, false));
-      }
 
       // @TODO: Adicionar os novos objetos
     }
@@ -390,6 +389,7 @@ void drawString(std::string str, int x, int y)
     que define um sistema de coordenadas bidimensional de 800x600.
 
     Em seguida, o texto é desenhado na tela usando as funções do GLUT glutBitmapCharacter() e glRasterPos2i()
+
   */
   // Define o modo de projeção para desenhar o texto na tela
   glMatrixMode(GL_PROJECTION);
@@ -436,6 +436,7 @@ void writeCamDebug()
 {
   std::ofstream camPos;
 
+  // Limpa o arquivo caso ele já exista
   camPos.open("camera.txt", std::ofstream::out | std::ofstream::trunc);
 
   if (camPos.is_open())
@@ -508,7 +509,7 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
     // Criar microfone
     objetos.push_back(new Microfone(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
     break;
-  case '0':
+  case '[':
     // Criar cobertura
     objetos.push_back(new Cobertura(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
     break;
@@ -530,7 +531,7 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
       objetos[current_object_id]->selected = !objetos[current_object_id]->selected;
     }
     break;
-  case '=':
+  case 'x':
     if (selecting_state)
     {
       // Obter o ultimo indice
@@ -715,7 +716,6 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
 void montarCena()
 {
 
-  // Define a cor de fundo
   glClearColor(0.53, 0.81, 0.92, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -723,7 +723,7 @@ void montarCena()
   GUI::setLight(0, 3, 5, 4, true, false);
 
   // Debug do eixo
-  GUI::drawOriginAL(5, 1);
+  /* GUI::drawOriginAL(5, 1); */
   GUI::setColor(0.8, 0.8, 0.8, 1, true);
   // Piso
   GUI::drawFloor(10, 10, 0.5, 0.5);
@@ -733,24 +733,21 @@ void montarCena()
 
   // Adiciona as paredes
   glPushMatrix();
-  wallLeft->draw();
-  wallback->draw();
+  paredeLeft->desenha();
+  paredeBack->desenha();
   glPopMatrix();
 
   for (int i = 0; i < objetos.size(); ++i)
   {
-
+    // Itera pelos objetos e desenha
     glPushMatrix();
-    objects[i]->draw();
+    objetos[i]->desenha();
     glPopMatrix();
   }
 }
 
-void draw()
+void desenha()
 {
-
-  // This code made me question my life choices
-  
   GUI::displayInit();
 
   glMatrixMode(GL_MODELVIEW);
@@ -758,9 +755,9 @@ void draw()
 
   gluLookAt(glutGUI::cam->e.x, glutGUI::cam->e.y, glutGUI::cam->e.z, glutGUI::cam->c.x, glutGUI::cam->c.y, glutGUI::cam->c.z, glutGUI::cam->u.x, glutGUI::cam->u.y, glutGUI::cam->u.z);
 
-  mountScene();
+  montarCena();
 
-  drawGrid();
+  grid();
 
   if (asked_to_save)
   {
@@ -814,16 +811,19 @@ int main(int argc, char *argv[])
   cout << "7: Adicionar armario" << endl;
   cout << "8: Adicionar palco" << endl;
   cout << "9: Adicionar microfone" << endl;
-  cout << "0: Adicionar cobertura" << endl;
+  cout << "[: Adicionar cobertura" << endl;
   cout << "c: Alternar camera" << endl;
   cout << "s: Salvar cena" << endl;
   cout << "t: Transformar objeto" << endl;
   cout << "l: Mover luz" << endl;
   cout << "d: Remover objeto selecionado" << endl;
-  cout << "=: Remover ultimo objeto" << endl;
+  cout << "x: Remover ultimo objeto" << endl;
+  cout << "=: Remover arquivo de save e reiniciar" << endl; // TODO: this
   cout << "q: Fechar" << endl;
 
   readSave();
   // GUI gui(800,600); // (largura, altura)
   GUI gui = GUI(800, 600, desenha, teclado);
+
+  // GUI gui2 = GUI(500, 200, desenha2);
 }
