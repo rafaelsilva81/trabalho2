@@ -1,0 +1,9 @@
+glutGUI::cam->e.x=-3.1519;
+glutGUI::cam->e.y=34.7417;
+glutGUI::cam->e.z=-5.67501;
+glutGUI::cam->c.x=-0.189669;
+glutGUI::cam->c.y=-1.28466;
+glutGUI::cam->c.z=0.0558241;
+glutGUI::cam->u.x=-0.451989;
+glutGUI::cam->u.y=-0.176264;
+glutGUI::cam->u.z=-0.874435;

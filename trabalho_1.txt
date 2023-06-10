@@ -1,0 +1,60 @@
+        -se deve ou n�o ser pintado com uma cor de destaque (branco, por exemplo)
+        -us�-lo como teste no m�todo desenhar
+    -[0.5] sist local de referencia
+      -incluir um atributo na classe Objeto para alternar entre desenhar ou n�o os eixos do sist local do objeto
+        -us�-lo como teste no m�todo desenhar
+  -[1.5] manipulacao do vetor de Objetos
+    -[0.5] permitir incluir objetos nesse vetor (usando o teclado)
+      -permitir incluir objetos independentes, inclusive do mesmo tipo (mesma classe filha)
+        -cada tipo de objeto deve ser associado a uma tecla diferente
+      -objetos devem ser incluidos com seu centro coincidindo com a origem do sist local
+        -seu sist local deve estar inicialmente alinhado com o sist global
+        -usar o proprio modelador implementado, durante sua execucao, para posicionar cada objeto (selecionado) no cenario
+    -[0.5] permitir alternar/selecionar os objetos desse vetor (de um a um, seguindo a ordem do vetor)
+      -marcar o objeto selecionado (pintar com uma cor de destaque, o objeto inteiro com a mesma cor)
+      -definir teclas para avan�ar e para voltar no vetor
+        -permitir avanco e retorno ciclico (indo do ultimo para o primeiro e vice-versa)
+    -[0.5] permitir apagar objetos desse vetor (usando o teclado)
+      -permitir apagar o objeto selecionado
+      -permitir apagar o ultimo objeto do vetor
+  -[1.5] permitir modificar os atributos do objeto selecionado
+    -[1.2] transla��o/rota��o/escala (usando o mouse)
+      -for�ar o usuario a modelar o cenario a partir da execucao do modelador (programa), e nao direto no codigo
+    -[0.3] desenhar ou n�o eixos do sist local (usando alguma tecla)
+  -[0.5] permitir salvar e carregar todos os objetos (todos os seus atributos) do vetor em/de um arquivo
+Trabalho 1) 10.0 pontos
+*pontua��o dos itens depende da explica��o realizada por v�deo!
+Entrega e apresenta��o: // ()
+___________________
+
+-[6.0] Implementar um modelador
+  -[2.5] implementacao orientada a objeto (definir uma classe Objeto)
+    -[1.0] heranca
+      -definir um m�todo desenhar (virtual)
+        -a ser implementado por classes mais espec�ficas (herdando da classe Objeto)
+          -por exemplo: Arvore, ...
+    -[0.5] transformacoes
+      -incluir atributos referentes �s poss�veis transforma��es
+        -transla��o/rota��o/escala
+    -[0.5] selecao
+      -incluir um atributo na classe Objeto para dizer se o objeto est� ou n�o selecionado
+
+-[1.0] C�meras
+  -[0.2] incluir implementa��o pronta j� disponibilizada nos exemplos (class Camera [CameraDistante e/ou CameraJogo])
+    -que permite movimentar a c�mera pelo cen�rio
+  -[0.8] pr�-estabelecer posi��es/orienta��es (pelo menos 6) de c�mera espec�ficas interessantes, de acordo com o cen�rio modelado
+    -permitir alternar entre essas posi��es/orienta��es pr�-estabelecidas usando o teclado
+    -explicar os valores usados na fun��o gluLookAt para cada c�mera
+
+-[3.0] Modelar, salvar e carregar um cen�rio com um certo n�vel de detalhes (avaliacao subjetiva considerando complexidade e criatividade)
+  -basear-se nos exerc�cios (no dropbox) ou sugest�es dadas (n�o modelar laborat�rio, nem sala de aula)
+    -pelo menos 5 tipos de objeto diferentes (alguns deles podem usar 3ds)
+  -pelo menos 2 objetos devem ser modelados usando glBegin(...);...glEnd();
+    -definir os glNormal3f(...); das faces (composta pelos v�rtices) adequadamente
+    -pelo menos 2 faces inclinadas (ou seja, n�o alinhadas aos eixos do sist de coordenadas local do objeto)
+      -usar transformacoes locais fixas pode facilitar
+
+___________________
+
+Sugest�o: usar C++, QtCreator, OpenGL, GLUT/Qt [mais f�cil usando a camada grafica GUI]
+

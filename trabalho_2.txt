@@ -1,0 +1,40 @@
+Trabalho 2) 10.0 pontos
+*pontuação dos itens depende da explicação realizada por vídeo!
+Entrega e apresentação: // ()
+___________________
+
+-[3.0] Projeções
+  -alternar entre proj. perspectiva e proj. ortográfica
+    -usando alguma tecla
+  -definir posições/orientações de câmera específicas para simular todas as possíveis projeções clássicas
+    -de acordo com a classificação mostrada em sala
+      -pode focar em um objeto específico
+  -permitir alternar entre essas posições/orientações pré-estabelecidas usando o teclado
+  -explicar as diferenças entre as projeções apresentadas
+
+-[4.0] Sombras
+  -mostrar as sombras de todos os objetos
+    -permitir o usuário habilitar/desabilitar a sombra de um objeto específico selecionado
+  -implementar e explicar o uso das matrizes de sombra
+    -no chão (plano horizontal) e em duas paredes se encontrando (planos verticais)
+      -mostrar resultado da sombra em um canto de parede
+    -em um plano inclinado
+  -permitir o usuário alternar entre luz pontual próxima (proj. perspectiva) e luz distante (proj. oblíqua)
+  -permitir o usuário transladar o ponto de luz
+
+-[2.0] Picking
+  -implementar seleção através de picking (mouse)
+    -permitir transformar os objetos selecionados com o mouse
+    -incorporar ao Trabalho 1
+
+-[1.0] Viewports
+  -usar diferentes viewports
+    -sugestão 1: 1 viewport mostrando a visao da camera gopro acoplada no "carrinho"
+    -sugestão 2: 4 viewports estilo 3ds/Blender
+      -uma modificada pelo mouse, como antes/uma de frente/uma de lado/uma de cima
+                                             \_relativo ao sist de coords global_/
+
+___________________
+
+Sugestão: usar C++, QtCreator, OpenGL, GLUT/Qt [mais fácil usando a camada grafica GUI]
+
