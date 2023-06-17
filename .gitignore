@@ -40,3 +40,4 @@
 
 build/*.o
 run
+build/main

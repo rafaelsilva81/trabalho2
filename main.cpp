@@ -200,7 +200,6 @@ void readSave()
 
     Armario *armario_fundo = new Armario(giveId(), -4.0, 0.0, -4.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
     Barril *barril_armario_fundo_1 = new Barril(giveId(), -4.0, 0.1, -4.5, 0., 0., 0., 1., 1., 1., false, false);
-    Barril *barril_armario_fundo_2 = new Barril(giveId(), -4.0, 1.5, -4.5, 0., 0., 0., 1., 1., 1., false, false);
 
     Prateleira *prateleira_fundo = new Prateleira(giveId(), -2., 2.2, -4.7, 0., 0., 0., 1., 1., 1., false, false);
     Cobertura *cobertura_prateleira_fundo = new Cobertura(giveId(), -2., 1.85, -5, 0., 0., 0., 1., 1., 1., false, false);
@@ -209,13 +208,9 @@ void readSave()
     /* Caneca *caneca_prateleira_fundo_3 = new Caneca(giveId(), -2.2, 2.4, -4.7, 0., 180., 0., 1., 1., 1., false, false); */
 
     Tamborete *tamborete_balcao_1 = new Tamborete(giveId(), -4.2, 0.0, -1.9, 0., 0., 0., 1., 1., 1., false, false);
-    Tamborete *tamborete_balcao_2 = new Tamborete(giveId(), -3, 0.0, -1.9, 0., 0., 0., 1., 1., 1., false, false);
-    Tamborete *tamborete_balcao_3 = new Tamborete(giveId(), -1.8, 0.0, -1.9, 0., 0., 0., 1., 1., 1., false, false);
-    Tamborete *tamborete_balcao_4 = new Tamborete(giveId(), -0.6, 0.0, -1.9, 0., 0., 0., 1., 1., 1., false, false);
 
     Caneca *caneca_balcao_1 = new Caneca(giveId(), -4.3, 1, -2.4, 0., 10, 0., 1., 1., 1., false, false);
     Caneca *caneca_balcao_2 = new Caneca(giveId(), -3.3, 1, -2.4, 0., -20, 0., 1., 1., 1., false, false);
-    Caneca *caneca_balcao_3 = new Caneca(giveId(), -1.8, 1, -2.4, 0., 30, 0., 1., 1., 1., false, false);
     /* Caneca *caneca_balcao_4 = new Caneca(giveId(), -0.3, 1, -2.4, 0., 45, 0., 1., 1., 1., false, false); */
 
     Mesa *mesa_1 = new Mesa(giveId(), 3.0, 0.0, 2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
@@ -226,15 +221,9 @@ void readSave()
 
     Mesa *mesa_2 = new Mesa(giveId(), -3.0, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
     Tamborete *tamborete_1_mesa_2 = new Tamborete(giveId(), -3.6, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    Tamborete *tamborete_2_mesa_2 = new Tamborete(giveId(), -2.2, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
     Caneca *caneca_1_mesa_2 = new Caneca(giveId(), -3.1, 1, 0.6, 0.0, -84.0, 0.0, 1.0, 1.0, 1.0, false, false);
     /* Caneca *caneca_2_mesa_2 = new Caneca(giveId(), -2.8, 1, 0.5, 0.0, 98.0, 0.0, 1.0, 1.0, 1.0, false, false); */
 
-    Mesa *mesa_3 = new Mesa(giveId(), -2.5, 0.0, 3.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    Tamborete *tamborete_1_mesa_3 = new Tamborete(giveId(), -2.5, 0.0, 4.2, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    Tamborete *tamborete_2_mesa_3 = new Tamborete(giveId(), -2.5, 0.0, 2.8, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    /*  Caneca *caneca_1_mesa_3 = new Caneca(giveId(), -2.4, 1, 3.3, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false); */
-    Caneca *caneca_2_mesa_3 = new Caneca(giveId(), -2.6, 1, 3.6, 0.0, 180.0, 0.0, 1.0, 1.0, 1.0, false, false);
 
     Palco *palco = new Palco(giveId(), 3.5, 0.0, -4.5, 0.0, 0.0, 0.0, 0.9, 0.9, 0.9, false, false);
     Microfone *microfone = new Microfone(giveId(), 3, 0.85, -3.8, 0.0, 50.0, 0.0, 0.9, 0.9, 0.9, false, false);
