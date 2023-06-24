@@ -26,7 +26,7 @@ void Parede::criar()
 {
 
   // Habilita o culling para que a parede não atrapalhe a camera
-  glEnable(GL_CULL_FACE);
+  glDisable(GL_CULL_FACE);
 
   // Alterar a cor da parede para #1e293b
   GUI::setColor(0.1176, 0.1607, 0.2313, 1, true);
@@ -38,6 +38,8 @@ void Parede::criar()
   glVertex3f(5.0, 5.0, -0.05);
   glVertex3f(5.0, 0.0, -0.05);
   glEnd();
+
+  glEnable(GL_CULL_FACE);
 }
 
 void Parede::desenha()

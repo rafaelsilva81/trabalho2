@@ -65,6 +65,12 @@ int camera_presets = 0;
 
 std::ofstream myfile;
 
+//-------------------sombra-------------------
+bool sombras_planos = false;
+bool drawShadow = false;
+bool tipo_luz = true;
+float k = 0.0;
+
 void transformObjects()
 {
   // Aplicando transformações no objeto selecionado
@@ -93,23 +99,6 @@ int giveId()
   /*  cout << "Atribuindo id:" + to_string(max_object_id) << endl; */
   max_object_id += 1;
   return max_object_id;
-}
-
-void grid()
-{
-  glBegin(GL_LINES);
-  GUI::setColor(0.5, 0.5, 0.5);
-  for (float i = -5; i <= 5; i += 1.0)
-  {
-    // Draw lines along the x-axis
-    glVertex3f(i, 0, -5);
-    glVertex3f(i, 0, 5);
-
-    // Draw lines along the z-axis
-    glVertex3f(-5, 0, i);
-    glVertex3f(5, 0, i);
-  }
-  glEnd();
 }
 
 void saveScene()
@@ -224,7 +213,6 @@ void readSave()
     Caneca *caneca_1_mesa_2 = new Caneca(giveId(), -3.1, 1, 0.6, 0.0, -84.0, 0.0, 1.0, 1.0, 1.0, false, false);
     /* Caneca *caneca_2_mesa_2 = new Caneca(giveId(), -2.8, 1, 0.5, 0.0, 98.0, 0.0, 1.0, 1.0, 1.0, false, false); */
 
-
     Palco *palco = new Palco(giveId(), 3.5, 0.0, -4.5, 0.0, 0.0, 0.0, 0.9, 0.9, 0.9, false, false);
     Microfone *microfone = new Microfone(giveId(), 3, 0.85, -3.8, 0.0, 50.0, 0.0, 0.9, 0.9, 0.9, false, false);
 
@@ -232,7 +220,6 @@ void readSave()
 
     objetos.push_back(armario_fundo);
     objetos.push_back(barril_armario_fundo_1);
-    objetos.push_back(barril_armario_fundo_2);
 
     objetos.push_back(prateleira_fundo);
     objetos.push_back(cobertura_prateleira_fundo);
@@ -241,13 +228,9 @@ void readSave()
     /* objetos.push_back(caneca_prateleira_fundo_3); */
 
     objetos.push_back(tamborete_balcao_1);
-    objetos.push_back(tamborete_balcao_2);
-    objetos.push_back(tamborete_balcao_3);
-    objetos.push_back(tamborete_balcao_4);
 
     objetos.push_back(caneca_balcao_1);
     objetos.push_back(caneca_balcao_2);
-    objetos.push_back(caneca_balcao_3);
     /* objetos.push_back(caneca_balcao_4); */
 
     objetos.push_back(mesa_1);
@@ -258,15 +241,8 @@ void readSave()
 
     objetos.push_back(mesa_2);
     objetos.push_back(tamborete_1_mesa_2);
-    objetos.push_back(tamborete_2_mesa_2);
     objetos.push_back(caneca_1_mesa_2);
     /* objetos.push_back(caneca_2_mesa_2); */
-
-    objetos.push_back(mesa_3);
-    objetos.push_back(tamborete_1_mesa_3);
-    objetos.push_back(tamborete_2_mesa_3);
-    /* objetos.push_back(caneca_1_mesa_3); */
-    objetos.push_back(caneca_2_mesa_3);
 
     objetos.push_back(palco);
     objetos.push_back(microfone);
@@ -541,10 +517,16 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
       objetos[current_object_id]->selected = true;
     }
     break;
-  case 's':
+  case 'u':
     // Salvar
     saveScene();
     break;
+  case 's':
+    // Sombra
+    if (selecting_state)
+    {
+      drawShadow = !drawShadow;
+    }
   case 'c':
     camera_presets++;
     /* cout << "Camera Preset: " << camera_presets << endl; */
@@ -708,23 +690,47 @@ void montarCena()
   glClearColor(0.53, 0.81, 0.92, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // Definir iluminação
-  GUI::setLight(0, 3, 5, 4, true, false);
+  // FIXME: Merge old code with new code
+  /*   glClearColor(0.53, 0.81, 0.92, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-  // Debug do eixo
-  /* GUI::drawOriginAL(5, 1); */
+    // Definir iluminação
+    GUI::setLight(0, 3, 5, 4, true, false);
+
+    // Debug do eixo
+    // GUI::drawOriginAL(5, 1);
   GUI::setColor(0.8, 0.8, 0.8, 1, true);
   // Piso
   GUI::drawFloor(10, 10, 0.5, 0.5);
 
   // GUI::setColor(0,1,0, 1,true);
-  // GUI::drawBox(0+desl.x,0+desl.y,0+desl.z, 1+desl.x,1+desl.y,1+desl.z);//(x0,y0,z0, xf,yf,zf)
+  // GUI::drawBox(0+desl.x,0+desl.y,0+desl.z, 1+desl.x,1+desl.y,1+desl.z);//(x0,y0,z0, xf,yf,zf) */
+
+  // ================================= CODIGO NOVO ============
+  // TODO: Mudar nomes
+  // GUI::setLight(0,  3,5,4, true,false);//(tecla de apagar, x,y,z , desligar e ligar luz, (false = forte, true = atenuada))
+
+  GUI::drawOrigin(1); // tamanho de cada eixo
+
+  GUI::setColor(0.8, 0.8, 0.8, 1, true);
+
+  glPushMatrix();
+  //-------------------sombra-------------------
+  glTranslated(0.0, k, 0.0);        // glTranslated(0.0,k-0.001,0.0);
+  GUI::drawFloor(10, 10, 0.1, 0.1); //(largura, comprimento, vertices largura, vertices comprimento)
+
+  // GUI::drawPlane(Vetor3D(2,2,3), k, 15, 15, 0.5, 0.5); //chama o drawFloor dentro //-0.001 definido dentro do drawFloor
+  // GUI::drawPlane(Vetor3D(0,0,1), k, 15, 15, 0.5, 0.5);
+  // GUI::drawPlane(Vetor3D(0,1,0), k, 15, 15, 0.5, 0.5);
+  //-------------------sombra-------------------
+  glPopMatrix();
+  // ============= FIM CODIGO NOVO ========================
 
   // Adiciona as paredes
-  glPushMatrix();
-  paredeLeft->desenha();
-  paredeBack->desenha();
-  glPopMatrix();
+  /*   glPushMatrix();
+    paredeLeft->desenha();
+    paredeBack->desenha();
+    glPopMatrix(); */
 
   for (int i = 0; i < objetos.size(); ++i)
   {
@@ -733,49 +739,133 @@ void montarCena()
     objetos[i]->desenha();
     glPopMatrix();
   }
+
+  //-------------------sombra-------------------
+  // definindo a luz que sera usada para gerar a sombra
+  float lightPos[4] = {1.5 + glutGUI::lx, 1.5 + glutGUI::ly, 1.5 + glutGUI::lz, tipo_luz};
+  // GUI::setLight(0,lightPos[0],lightPos[1],lightPos[2],true,false,false,false,pontual);
+  GUI::setLight(0, 3, 5, 4, true, false, false, false, tipo_luz);
+  // desenhando os objetos projetados
+  glPushMatrix();
+  // matriz p multiplicar tudo por -1
+  // float neg[16] = {
+  //                    -1.0, 0.0, 0.0, 0.0,
+  //                     0.0,-1.0, 0.0, 0.0,
+  //                     0.0, 0.0,-1.0, 0.0,
+  //                     0.0, 0.0, 0.0,-1.0
+  //                 };
+  // glMultTransposeMatrixf( neg );
+  // matriz de projecao para gerar sombra no plano y=k
+  GLfloat sombra[4][4];
+  GUI::shadowMatrixYk(sombra, lightPos, k);
+  // GLfloat plano[4] = {0,1,0,-k};
+  // GUI::shadowMatrix(sombra,plano,lightPos);
+  glMultTransposeMatrixf((GLfloat *)sombra);
+
+  // matriz de projecao para gerar sombra no plano y=k
+  // GLfloat sombra[4][4];
+  // GUI::shadowMatrixYk(sombra,lightPos,k);
+  // GLfloat plano[4] = {0,1,0,-k};
+  // GLfloat plano[4] = {0,0,1,-k};
+  // GLfloat plano[4] = {1,1,0,-k};
+  // GLfloat plano[4] = {sqrt(2)/2.,sqrt(2)/2.,0,-k}; //      2/4 + 2/4 + 0 = 1
+  // versao plano arbitrario passando coeficiente D do plano (não intuitivo p usuario - diferente de acordo com o tamanho do n)
+  // GLfloat plano[4] = {2,2,3,-k}; //D = -k
+  // GUI::shadowMatrix(sombra,plano,lightPos);
+  // versao plano arbitrario passando dist minima do plano para a origem (mais intuitivo p usuario)
+  // GLfloat distMin = k; //sinal indica se a distancia é no sentido da normal ou contrário
+  // GUI::shadowMatrix(sombra, Vetor3D(2,2,3), distMin, lightPos);
+  // glMultTransposeMatrixf( (GLfloat*)sombra );
+
+  glDisable(GL_LIGHTING);
+  glColor3d(0.0, 0.0, 0.0);
+  if (drawShadow)
+  {
+    bool aux = glutGUI::draw_eixos;
+    glutGUI::draw_eixos = false;
+    glPushMatrix();
+    objetos[current_object_id]->desenha();
+    glPopMatrix();
+    glutGUI::draw_eixos = aux;
+  }
+  glEnable(GL_LIGHTING);
+
+  // glDisable(GL_LIGHTING);
+  // glColor3d(0.0,0.0,0.0);
+  // if (drawShadow) desenhaObjetosComSombra();
+  // glEnable(GL_LIGHTING);
+  glPopMatrix();
+  //-------------------sombra-------------------
+}
+
+// TODO: Mudar nome
+void sombra_plano_qualquer(GLfloat plano[4], float lightPos[4])
+{
+  bool aux = glutGUI::draw_eixos;
+  glutGUI::draw_eixos = false;
+
+  for (size_t i = 0; i < objetos.size(); i++)
+  {
+    glDisable(GL_LIGHTING);
+    glColor4d(0.0, 0.0, 0.0, 0.5);
+
+    GLfloat sombra[4][4];
+
+    glPushMatrix();
+    GUI::shadowMatrix(sombra, plano, lightPos);
+    glMultTransposeMatrixf((GLfloat *)sombra);
+    objetos[current_object_id]->desenha();
+    glEnable(GL_LIGHTING);
+    glPopMatrix();
+  }
+}
+
+// TODO: Mudar nome
+void mostrarSombrasNosPlanos()
+{
+  float lightPos[4] = {glutGUI::lx, glutGUI::ly, glutGUI::lz, tipo_luz ? 1.0f : 0.0f};
+
+  GUI::setLight(0, lightPos[0], lightPos[1], lightPos[2], true, false, false, false, tipo_luz);
+  GLfloat plano_chao[4] = {0, 1, 0, -0.001};
+  sombra_plano_qualquer(plano_chao, lightPos);
+
+  // lateral
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  GUI::drawBox(-5, 0, -5, -4.77, 5, 0);
+  glPopMatrix();
+  GLfloat plano_lateral[4] = {0.63, 0, 0, 3.00 - 0.001};
+  sombra_plano_qualquer(plano_lateral, lightPos);
+
+  // frente
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  GUI::drawBox(-4.77, 0, -5, 0, 5, -4.77);
+  glPopMatrix();
+  GLfloat plano_frente[4] = {0, 0, 0.63, 3.00 - 0.001};
+  sombra_plano_qualquer(plano_frente, lightPos);
+
+  // inclinado
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  glTranslatef(-4.04, 0, -2.5);
+  glRotatef(-45, 0, 0, 1);
+  GUI::drawQuad(2, 5);
+  glPopMatrix();
+  GLfloat plano_inclinado[4] = {0.63, 0.63, 0, 2.54 - 0.001};
+  sombra_plano_qualquer(plano_inclinado, lightPos);
 }
 
 void desenha()
 {
   GUI::displayInit();
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  gluLookAt(glutGUI::cam->e.x, glutGUI::cam->e.y, glutGUI::cam->e.z, glutGUI::cam->c.x, glutGUI::cam->c.y, glutGUI::cam->c.z, glutGUI::cam->u.x, glutGUI::cam->u.y, glutGUI::cam->u.z);
-
   montarCena();
 
-  grid();
-
-  if (asked_to_save)
+  // TODO: Alterar nomes
+  if (sombras_planos)
   {
-    drawString("SALVO COM SUCESSO!", 4, 75);
-    asked_to_save = false;
-  }
-
-  drawString("CAMERA PRESET:" + to_string(camera_presets), 4, 60);
-
-  if (selecting_state && objetos[current_object_id]->show_coord)
-  {
-    drawString("MOSTRANDO COORDENADAS", 4, 45);
-  }
-
-  if (transforming_state)
-  {
-    drawString("TRANSFORMANDO OBJETO", 4, 30);
-  }
-
-  if (moving_light_state)
-  {
-    drawString("MOVENDO LUZ", 4, 15);
-  }
-
-  if (selecting_state)
-  {
-    string s = "SELECIONANDO:" + objetos[current_object_id]->getClassName() + " id " + to_string(current_object_id);
-    // Irá mostrar na tela quando um objeto estiver selecionado
-    drawString(s, 4, 1);
+    mostrarSombrasNosPlanos();
   }
 
   transformObjects();

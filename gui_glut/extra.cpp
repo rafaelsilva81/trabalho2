@@ -251,19 +251,6 @@ void glutGUI::defaultKey(unsigned char key, int x, int y)
     }
     orthof = 0.00025 * (cam->c - cam->e).modulo();
     break;
-  case 's':
-    // save current camera location
-    savedCamera[0] = cam->e.x;
-    savedCamera[1] = cam->e.y;
-    savedCamera[2] = cam->e.z;
-    savedCamera[3] = cam->c.x;
-    savedCamera[4] = cam->c.y;
-    savedCamera[5] = cam->c.z;
-    savedCamera[6] = cam->u.x;
-    savedCamera[7] = cam->u.y;
-    savedCamera[8] = cam->u.z;
-    break;
-
   case 'm':
     mouse_lock = MouseLock((int(mouse_lock) + 1) % 3);
     break;
