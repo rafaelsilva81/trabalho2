@@ -13,7 +13,7 @@
 #include <string.h>
 #include <iostream>
 #include <math.h>
-#include <SDL2/SDL_image.h>
+#include <SDL/SDL_image.h>
 
 #define	TEX_XSIZE	1024
 #define	TEX_YSIZE	1024
@@ -48,8 +48,6 @@ public:
     Model3DS(const char *name);
     ~Model3DS();
 
-    //colorido significa usar as cores definidas no arquivo
-    //se false, a cor definida pelo setColor é que será usada
     void draw(bool colorido = true);
 };
 

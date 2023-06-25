@@ -13,9 +13,9 @@
 #include <iomanip>
 using namespace std;
 
-#include "../bib/CameraDistante.h"
-#include "../bib/CameraJogo.h"
-#include "../bib/Desenha.h"
+#include "CameraDistante.h"
+#include "CameraJogo.h"
+#include "Desenha.h"
 
 //texture
 //#include "OpenTextures.h"
@@ -28,13 +28,10 @@ enum Axis{AXIS_X,AXIS_Y,AXIS_Z};
 
 class glutGUI {
 public:
-    static bool iluminacao3D;// = true;
-
     static int width;// = 400;
     static int height;// = 300;
 
     static bool perspective;// = true;
-    static float orthof;// = 0.003; //orthoFactor
 
     static bool picking;// = false;
 
@@ -58,7 +55,7 @@ public:
     static int slices;// = 200; //400;//16;
     static int stacks;// = 200; //400;//16;
 
-    static int posCam;// = 1;
+    static int posCam;// = 0;
 
     static bool iluminacao;// = true;
     static bool enabled_light[8];// = {false,false,false,false,false,false,false,false};

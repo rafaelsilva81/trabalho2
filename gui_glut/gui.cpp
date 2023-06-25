@@ -39,7 +39,7 @@ void GUI::GLInit()
     //glClearColor(1.0,1.0,1.0,1.0); //define a cor para limpar a imagem (cor de fundo)
 
     glEnable(GL_LIGHTING); //habilita iluminacao (chamada no setLight)
-    //glEnable(GL_COLOR_MATERIAL);
+    //glEnable(GL_COLOR_MATERIAL); //mesmo com a iluminacao habilitada, o que define a cor é o glColor(...)
     glEnable(GL_CULL_FACE); //nao mostra as faces dos dois "lados" (frente [anti-horaria] e tras [horaria])
     //glCullFace(GL_BACK); //define qual "lado" da face nao sera mostrado (padrao = nao mostrar a de tras)
     glEnable(GL_NORMALIZE); //mantem a qualidade da iluminacao mesmo quando glScalef eh usada
@@ -94,38 +94,46 @@ void GUI::setMouseButton(mouseButtonFunction mbFunction)
 
 void GUI::displayInit()
 {
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a imagem com a cor de fundo
+
+    //glViewport(0, 0, glutGUI::width, glutGUI::height);
+    //minha implementacao da glViewport nao funcionou pq ela é independente das matrizes de transformação (GL_PROJECTION/GL_MODELVIEW)
+    //glViewport(-1, -1, 2, 2); //viewPort "identidade" (sem efeito)
+    //    glTranslatef(x,y,0);
+    //    glScalef(width/2.0,height/2.0, 1);
+    //    glTranslatef(1,1,0);
 
     const float ar = glutGUI::height>0 ? (float) glutGUI::width / (float) glutGUI::height : 1.0;
     const float w = glutGUI::width;
     const float h = glutGUI::height;
-    const float orthof = glutGUI::orthof;
+    const float orthof = 0.003; //orthoFactor
 
     glMatrixMode(GL_PROJECTION);
 
-    if (!glutGUI::picking)
+    if (!glutGUI::picking) {
         glLoadIdentity();
-    else {
+    } else {
         //lembrar de nao inicializar a matriz de projecao,
         //pois a gluPickMatrix é que redefine os planos de corte do volume de visualizacao reduzido
         //(apenas na vizinhanca do pixel selecionado pelo mouse)
     }
 
     if (glutGUI::perspective)
+        //glFrustum(-1.5,1.5, -1.5,1.5, 1,15);
         gluPerspective(30.,ar,0.1,1000.);
     else
         glOrtho(-orthof*w,orthof*w,-orthof*h,orthof*h,0.0,100.0);
 
-    glMatrixMode(GL_MODELVIEW); // Tcam . Tobj
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     //viewport unica
     glViewport(0, 0, glutGUI::width, glutGUI::height);
         glLoadIdentity();
         gluLookAt(glutGUI::cam->e.x,glutGUI::cam->e.y,glutGUI::cam->e.z, glutGUI::cam->c.x,glutGUI::cam->c.y,glutGUI::cam->c.z, glutGUI::cam->u.x,glutGUI::cam->u.y,glutGUI::cam->u.z);
-        //gluLookAt(0,10,20,  0,0,0,  0,1,0);
 
-    //GUI::setLight(7,0,4,0,true,false,true);
+    GUI::setLight(7,0,4,0,true,false,true);
 }
 
 void GUI::displayEnd()
@@ -220,7 +228,6 @@ void GUI::setColor(float r, float g, float b, float a, bool specular) {
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 }
 
-//---------------transformacoes---------------
 void GUI::glShearXf(float shY, float shZ)
 {
     double transform[16] = {
@@ -319,70 +326,6 @@ void GUI::glReflectPlaneXYf()
                          };
     glMultTransposeMatrixd( transform );
 }
-//---------------transformacoes---------------
-
-//-------------------camera-------------------
-void GUI::camera2global(Vetor3D olho, Vetor3D centro, Vetor3D up)
-{
-    Vetor3D Oc = olho; //origem do sist local da camera
-    Vetor3D kc = olho - centro; //z local da camera
-    !kc; //normaliza kc (torna unitario)
-    Vetor3D ic = up ^ kc; //x local da camera
-    !ic; //normaliza ic (torna unitario)
-    Vetor3D jc = kc ^ ic; //j local da camera
-    !jc; //normaliza jc (torna unitario)
-
-    float Tcam[16] = {
-        ic.x, jc.x, kc.x, Oc.x,
-        ic.y, jc.y, kc.y, Oc.y,
-        ic.z, jc.z, kc.z, Oc.z,
-           0,    0,    0,    1
-    };
-
-    glMultTransposeMatrixf(Tcam);
-}
-
-void GUI::global2camera(Vetor3D olho, Vetor3D centro, Vetor3D up)
-{
-    Vetor3D Oc = olho; //origem do sist local da camera
-    Vetor3D kc = olho - centro; //z local da camera
-    !kc; //normaliza kc (torna unitario)
-    Vetor3D ic = up ^ kc; //x local da camera
-    !ic; //normaliza ic (torna unitario)
-    Vetor3D jc = kc ^ ic; //j local da camera
-    !jc; //normaliza jc (torna unitario)
-
-    float Tcam[16] = {
-        ic.x, ic.y, ic.z, ic * (Oc*-1), //t = R^T.-Oc = [ ic ]
-        jc.x, jc.y, jc.z, jc * (Oc*-1), //              [ jc ].-Oc
-        kc.x, kc.y, kc.z, kc * (Oc*-1), //              [ kc ]
-           0,    0,    0,       1
-    };
-
-    glMultTransposeMatrixf(Tcam);
-}
-
-void GUI::global2cameraAlternativa(Vetor3D olho, Vetor3D centro, Vetor3D up)
-{
-    Vetor3D Oc = olho; //origem do sist local da camera
-    Vetor3D kc = olho - centro; //z local da camera
-    !kc; //normaliza kc (torna unitario)
-    Vetor3D ic = up ^ kc; //x local da camera
-    !ic; //normaliza ic (torna unitario)
-    Vetor3D jc = kc ^ ic; //j local da camera
-    !jc; //normaliza jc (torna unitario)
-
-    float Tcam[16] = {
-        ic.x, ic.y, ic.z, 0,
-        jc.x, jc.y, jc.z, 0,
-        kc.x, kc.y, kc.z, 0,
-           0,    0,    0, 1
-    };
-
-    glMultTransposeMatrixf(Tcam);
-    glTranslatef(-Oc.x,-Oc.y,-Oc.z);
-}
-//-------------------camera-------------------
 
 //-------------------sombra-------------------
 //Create a matrix that will project the desired shadow
@@ -462,6 +405,7 @@ int GUI::processHits( GLint hits, GLuint buffer[] ) {
 
   int i;
   GLuint names, *ptr, minZ,*ptrNames, numberOfNames;
+  int nNamesSelec = 0;
 
   ptrNames = NULL;
 
@@ -482,22 +426,27 @@ int GUI::processHits( GLint hits, GLuint buffer[] ) {
       if (*ptr < minZ) {
           numberOfNames = names;
           minZ = *ptr;
-          if (numberOfNames != 0)
+          if (numberOfNames != 0) {
             ptrNames = ptr+2;
+            nNamesSelec = names;
+          }
       }
     //}
     ptr += names+2;
   }
 
-  //ptr = ptrNames;
-  //for (j = 0; j < numberOfNames; j++,ptr++) {
-  //   printf ("%d ", *ptr);
-  //}
+  printf("Selected = ");
+  ptr = ptrNames;
+  for (int j = 0; j < nNamesSelec; j++,ptr++) {
+     printf ("%d ", *ptr);
+  }
+  printf("\n");
 
   if (ptrNames == NULL)
       return 0;
   else
-      return *ptrNames;
+      return *ptrNames; //acessando o conteudo do ponteiro ptrNames
+      //return {*ptrNames,*(ptrNames+1)};
 }
 
 void GUI::pickingInit(GLint cursorX, GLint cursorY, int w, int h, GLuint* selectBuf, int BUFSIZE)
@@ -517,7 +466,9 @@ void GUI::pickingInit(GLint cursorX, GLint cursorY, int w, int h, GLuint* select
     glLoadIdentity();
 
     //redefinindo os planos de corte do volume de visualizacao reduzido (apenas na vizinhanca do pixel selecionado pelo mouse)
-    gluPickMatrix(cursorX,viewport[3]-cursorY,w,h,viewport);
+    //gluPickMatrix(cursorX,glutGUI::height-cursorY,w,h,viewport);
+    gui_gluPickMatrix(cursorX,glutGUI::height-cursorY,w,h,viewport);
+    //cout << cursorY << " " << glutGUI::height-cursorY << endl;
 
     glDisable(GL_LIGHTING);
 
@@ -548,6 +499,18 @@ int GUI::pickingClosestName(GLuint *selectBuf, int BUFSIZE)
         } else {
           return 0;
         }
+}
+
+void GUI::gui_gluPickMatrix(GLfloat cursorX, GLfloat cursorY, GLfloat w, GLfloat h, GLint *viewport)
+{
+    //cursorY = glutGUI::height - cursorY;
+    //normalized device (nd) coordinates (cubo 2x2x2)
+    float cursorX_nd = (cursorX - viewport[0])*(2.0/viewport[2]) - 1;
+    float cursorY_nd = (cursorY - viewport[1])*(2.0/viewport[3]) - 1;
+    float w_nd = w*(2.0/viewport[2]);
+    float h_nd = h*(2.0/viewport[3]);
+    glScalef(2.0/w_nd, 2.0/h_nd, 1);
+    glTranslatef(-cursorX_nd, -cursorY_nd, 0);
 }
 //-------------------picking------------------
 
@@ -778,177 +741,12 @@ void GUI::drawScaledBox(float scale, float xmin, float ymin, float zmin, float x
     glPopMatrix();
 }
 
-void GUI::drawFloor(float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
-{
-    //glDisable(GL_CULL_FACE);
-
-    //int discr = 1;
-    //Desenha::drawGrid( width/discr, 0, height/discr, discr );
-
-    glPushMatrix();
-        glTranslated(0.,-0.001,0.);
-        drawQuad(width,height,discrWidth,discrHeight,texWidth,texHeight);
-    glPopMatrix();
-
-    //glEnable(GL_CULL_FACE);
-}
-
-//plano arbitrario
-//definindo pela equacao do plano
-//cuidado com sombra, pois estou usando drawBox (com altura de 0.01) em vez de drawFloor
-void GUI::drawPlane(GLfloat planeABCD[4], float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
-{
-    //glDisable(GL_CULL_FACE);
-
-    glPushMatrix();
-    //rotação do plano
-        //GUI::drawFloor desenha plano com normal = (0,1,0)
-        //rotação do plano deve transformar o vetor (0,1,0) no vetor n do plano
-        //(0,1,0).n = |(0,1,0)|.|n|.cos(angle)
-        Vetor3D n = Vetor3D(planeABCD[0], planeABCD[1], planeABCD[2]);
-        float cos = n.y / n.modulo(); //prodEscalar/(|n|.|(0,1,0)|)
-        Vetor3D axis = Vetor3D(0,1,0).prodVetorial(n);
-        glRotatef(acos(cos)*180./PI, axis.x,axis.y,axis.z);
-    //distância do plano para a origem
-        //para um ponto qualquer p pertencente ao plano,
-        //p.n = |p|.|n|.cos(theta)
-        //dist = |p|.cos(theta) = p.n/|n| = xyz.ABC/|n| = -D/|n|
-        float dist = -planeABCD[3]/n.modulo();
-        glTranslatef(0.0,dist,0.0);
-        float altura = 0.01*glutGUI::orthof*200.0;
-        GUI::drawBox(-width/2.0,-altura/2.0,-height/2.0, width/2.0,altura/2.0,height/2.0);
-        //if (planeABCD[2] != 0) { //if (iluminacao3D) {
-        //    GUI::drawFloor(width,height,discrWidth,discrHeight,texWidth,texHeight);
-        //} else {
-        //    GUI::drawBox(-width/2.0,-0.01,-height/2.0, width/2.0,0.01,height/2.0);
-        //}
-    glPopMatrix();
-
-    //glEnable(GL_CULL_FACE);
-}
-
-//plano arbitrario
-//definindo pela equacao do plano
-//permite desabilitar iluminação 3D
-void GUI::drawPlaneAL(GLfloat planeABCD[4], float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
-{
-    glDisable(GL_CULL_FACE);
-    if (!glutGUI::iluminacao3D) {
-        glDisable(GL_LIGHTING);
-        glColor3f(1,1,1);
-    }
-    setColor(1,1,1);
-
-    GUI::drawPlane(planeABCD, width,height,discrWidth,discrHeight,texWidth,texHeight);
-
-    glEnable(GL_LIGHTING);
-    glEnable(GL_CULL_FACE);
-}
-
-//plano arbitrario
-//definindo a equacao do plano de maneira mais intuitiva
-//  passando a direcao perpendicular ao plano (n não precisa estar normalizado, pois está sendo normalizado dentro)
-//  e a distancia minima do plano para a origem
-void GUI::drawPlane(Vetor3D n, GLfloat distMinPlanoOrigem, float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
-{
-    enum {X,Y,Z,W};
-    GLfloat dot;
-
-    GLfloat groundplane[4];
-    //normalizando o vetor normal do plano
-    n.normaliza();
-    groundplane[X] = n.x;
-    groundplane[Y] = n.y;
-    groundplane[Z] = n.z;
-    groundplane[W] = -distMinPlanoOrigem; //com a normal unitaria, D significa exatamente essa distancia, mas com sinal trocado (D=-k)
-
-    drawPlane(groundplane,width,height,discrWidth,discrHeight,texWidth,texHeight);
-}
-
 //desenha eixos do sistema de coordenadas atual (global, caso nao esteja influenciado por transformacoes)
 void GUI::drawOrigin(float tamanho)
 {
     glPushMatrix();
         if (glutGUI::draw_eixos) Desenha::drawEixos( tamanho );
     glPopMatrix();
-}
-
-void GUI::drawOriginAL(float tam, float discr)
-{
-    const GLfloat redMaterial[]={0.8,0.,0.,1.};
-    const GLfloat greenMaterial[]={0.,0.3,0.,1.};
-    const GLfloat blueMaterial[]={0.,0.,0.3,1.};
-
-
-    GLUquadricObj *quad = gluNewQuadric();
-
-    glLineWidth( 2 ) ;
-
-    //x
-      glMaterialfv(GL_FRONT, GL_AMBIENT, redMaterial);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, redMaterial);
-      glColor3d(0.8,0.0,0.0);
-
-    glBegin(GL_LINES);
-      glVertex3f(-tam,0,0);
-      glVertex3f(tam,0,0);
-    glEnd();
-    for (float i = -tam; i < tam; i+=discr) {
-        glBegin(GL_LINES);
-          glVertex3f(i,-0.1,0);
-          glVertex3f(i,0.1,0);
-        glEnd();
-    }
-    glPushMatrix();
-      glRotated(90,0,1,0);
-      glTranslated(0,0,tam);
-      Desenha::gluClosedCylinder(quad, 0.1*0.5, 0, 0.2*0.5, 10, 10);
-    glPopMatrix();
-
-    //y
-      glMaterialfv(GL_FRONT, GL_AMBIENT, greenMaterial);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, greenMaterial);
-      glColor3d(0.0,0.3,0.0);
-
-    glBegin(GL_LINES);
-      glVertex3f(0,-tam,0);
-      glVertex3f(0,tam,0);
-    glEnd();
-    for (float i = -tam; i < tam; i+=discr) {
-        glBegin(GL_LINES);
-          glVertex3f(-0.1,i,0);
-          glVertex3f(0.1,i,0);
-        glEnd();
-    }
-    glPushMatrix();
-      glRotated(90,-1,0,0);
-      glTranslated(0,0,tam);
-      Desenha::gluClosedCylinder(quad, 0.1*0.5, 0, 0.2*0.5, 10, 10);
-    glPopMatrix();
-
-    //z
-      glMaterialfv(GL_FRONT, GL_AMBIENT, blueMaterial);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, blueMaterial);
-      glColor3d(0.0,0.0,0.3);
-
-    glBegin(GL_LINES);
-      glVertex3f(0,0,-tam);
-      glVertex3f(0,0,tam);
-    glEnd();
-    for (float i = -tam; i < tam; i+=discr) {
-        glBegin(GL_LINES);
-          glVertex3f(0,-0.1,i);
-          glVertex3f(0,0.1,i);
-        glEnd();
-    }
-    glPushMatrix();
-      glTranslated(0,0,tam);
-      Desenha::gluClosedCylinder(quad, 0.1*0.5, 0, 0.2*0.5, 10, 10);
-    glPopMatrix();
-
-    glLineWidth( 1 ) ;
-
-    gluDeleteQuadric( quad );
 }
 
 void GUI::drawCamera(float tamanho) {
@@ -982,4 +780,19 @@ void GUI::draw3ds(Model3DS &model3DS, float tx, float ty, float tz,
         glRotatef(-90,1,0,0);
         model3DS.draw();
     glPopMatrix();
+}
+
+void GUI::drawFloor(float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight)
+{
+    //glDisable(GL_CULL_FACE);
+
+    //int discr = 1;
+    //Desenha::drawGrid( width/discr, 0, height/discr, discr );
+
+    glPushMatrix();
+        glTranslated(0.,-0.0001,0.);
+        drawQuad(width,height,discrWidth,discrHeight,texWidth,texHeight);
+    glPopMatrix();
+
+    //glEnable(GL_CULL_FACE);
 }

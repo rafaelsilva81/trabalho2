@@ -178,7 +178,7 @@ void Desenha::drawGrid(int meionx, GLfloat y, int meionz, int dimensao) {
 //---------------------------------------------------------------------------
 // desenha um cilindro fechado
 void Desenha::gluClosedCylinder(GLUquadric* quad, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks) {
-	gluQuadricNormals(quad, GLU_SMOOTH);			// Create Smooth Normals
+    gluQuadricNormals(quad, GLU_SMOOTH);			// Create Smooth Normals
     gluQuadricTexture(quad, GL_TRUE);		  		// Create Texture Coords
   glPushMatrix();
     gluCylinder(quad, base, top, height, slices, stacks);
@@ -235,7 +235,7 @@ void Desenha::drawEixos(GLfloat tam) {
   const GLfloat redMaterial[]={0.3,0.,0.,1.};
   const GLfloat greenMaterial[]={0.,0.3,0.,1.};
   const GLfloat blueMaterial[]={0.,0.,0.3,1.};
-
+  const GLfloat specularMaterial[]={0.,0.,0.,1.};
 
   GLUquadricObj *quad = gluNewQuadric();
 
@@ -244,6 +244,8 @@ void Desenha::drawEixos(GLfloat tam) {
   //x
     glMaterialfv(GL_FRONT, GL_AMBIENT, redMaterial);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, redMaterial);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specularMaterial);
+    glMaterialf(GL_FRONT, GL_SHININESS, 100.0);
     glColor3d(0.3,0.0,0.0);
 
   glBegin(GL_LINES);
@@ -259,6 +261,8 @@ void Desenha::drawEixos(GLfloat tam) {
   //y
     glMaterialfv(GL_FRONT, GL_AMBIENT, greenMaterial);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, greenMaterial);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specularMaterial);
+    glMaterialf(GL_FRONT, GL_SHININESS, 100.0);
     glColor3d(0.0,0.3,0.0);
 
   glBegin(GL_LINES);
@@ -274,6 +278,8 @@ void Desenha::drawEixos(GLfloat tam) {
   //z
     glMaterialfv(GL_FRONT, GL_AMBIENT, blueMaterial);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, blueMaterial);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specularMaterial);
+    glMaterialf(GL_FRONT, GL_SHININESS, 100.0);
     glColor3d(0.0,0.0,0.3);
 
   glBegin(GL_LINES);
@@ -288,7 +294,7 @@ void Desenha::drawEixos(GLfloat tam) {
   glLineWidth( 1 ) ;
 
   gluDeleteQuadric( quad );
-  }
+}
 //*/
 //---------------------------------------------------------------------------
 //aplica T.R.v

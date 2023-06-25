@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <thread>
 
 using namespace std;
 
@@ -9,6 +8,7 @@ using namespace std;
 #include <fstream>
 #include <string>
 #include <unistd.h>
+#include <sstream>
 
 // Objeto base
 #include "Objeto.h"
@@ -71,27 +71,48 @@ bool drawShadow = false;
 bool tipo_luz = true;
 float k = 0.0;
 
+// ------------ picking -----------------------
+size_t pontoSelecionado = 0;
+
 void transformObjects()
 {
-  // Aplicando transformações no objeto selecionado
-  if (selecting_state)
+
+  if ((pontoSelecionado != 0 and pontoSelecionado <= objetos.size()))
   {
-    /* cout << "Aplicando transformações no objeto " + to_string(current_object_id) << endl; */
     // Translações
-    objetos[current_object_id]->trans_x += 10 * glutGUI::dtx;
-    objetos[current_object_id]->trans_y += 10 * glutGUI::dty;
-    objetos[current_object_id]->trans_z += 10 * glutGUI::dtz;
+    objetos[pontoSelecionado - 1]->trans_x += 2 * glutGUI::dtx;
+    objetos[pontoSelecionado - 1]->trans_y += 2 * glutGUI::dty;
+    objetos[pontoSelecionado - 1]->trans_z += 2 * glutGUI::dtz;
 
     // Rotações
-    objetos[current_object_id]->rot_x += 10 * glutGUI::dax;
-    objetos[current_object_id]->rot_y += 10 * glutGUI::day;
-    objetos[current_object_id]->rot_z += 10 * glutGUI::daz;
+    objetos[pontoSelecionado - 1]->rot_x += 2 * glutGUI::dax;
+    objetos[pontoSelecionado - 1]->rot_y += 2 * glutGUI::day;
+    objetos[pontoSelecionado - 1]->rot_z += 2 * glutGUI::daz;
 
     // Escalas
-    objetos[current_object_id]->scale_x += 10 * glutGUI::dsx;
-    objetos[current_object_id]->scale_y += 10 * glutGUI::dsy;
-    objetos[current_object_id]->scale_z += 10 * glutGUI::dsz;
+    objetos[pontoSelecionado - 1]->scale_x += glutGUI::dsx;
+    objetos[pontoSelecionado - 1]->scale_y += glutGUI::dsy;
+    objetos[pontoSelecionado - 1]->scale_z += glutGUI::dsz;
   }
+  /*
+    // Aplicando transformações no objeto selecionado
+    if (selecting_state)
+    {
+      // Translações
+      objetos[current_object_id]->trans_x += 10 * glutGUI::dtx;
+      objetos[current_object_id]->trans_y += 10 * glutGUI::dty;
+      objetos[current_object_id]->trans_z += 10 * glutGUI::dtz;
+
+      // Rotações
+      objetos[current_object_id]->rot_x += 10 * glutGUI::dax;
+      objetos[current_object_id]->rot_y += 10 * glutGUI::day;
+      objetos[current_object_id]->rot_z += 10 * glutGUI::daz;
+
+      // Escalas
+      objetos[current_object_id]->scale_x += 10 * glutGUI::dsx;
+      objetos[current_object_id]->scale_y += 10 * glutGUI::dsy;
+      objetos[current_object_id]->scale_z += 10 * glutGUI::dsz;
+    } */
 }
 
 int giveId()
@@ -397,33 +418,6 @@ void drawString(std::string str, int x, int y)
   glMatrixMode(GL_PROJECTION);
 }
 
-void writeCamDebug()
-{
-  std::ofstream camPos;
-
-  // Limpa o arquivo caso ele já exista
-  camPos.open("camera.txt", std::ofstream::out | std::ofstream::trunc);
-
-  if (camPos.is_open())
-  {
-    camPos << "glutGUI::cam->e.x=" << glutGUI::cam->e.x << ";" << endl;
-    camPos << "glutGUI::cam->e.y=" << glutGUI::cam->e.y << ";" << endl;
-    camPos << "glutGUI::cam->e.z=" << glutGUI::cam->e.z << ";" << endl;
-    camPos << "glutGUI::cam->c.x=" << glutGUI::cam->c.x << ";" << endl;
-    camPos << "glutGUI::cam->c.y=" << glutGUI::cam->c.y << ";" << endl;
-    camPos << "glutGUI::cam->c.z=" << glutGUI::cam->c.z << ";" << endl;
-    camPos << "glutGUI::cam->u.x=" << glutGUI::cam->u.x << ";" << endl;
-    camPos << "glutGUI::cam->u.y=" << glutGUI::cam->u.y << ";" << endl;
-    camPos << "glutGUI::cam->u.z=" << glutGUI::cam->u.z << ";" << endl;
-    camPos.close(); // close the file
-    std::cout << "Camera salva" << std::endl;
-  }
-  else
-  {
-    std::cout << "Erro ao abrir arquivo" << std::endl;
-  }
-}
-
 void teclado(unsigned char tecla, int mouseX, int mouseY)
 {
   GUI::keyInit(tecla, mouseX, mouseY);
@@ -674,11 +668,6 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
       objetos[current_object_id]->show_coord = !objetos[current_object_id]->show_coord;
     }
     break;
-  case '-':
-    // escrever num arquivo a posição da camera atual (para debug)
-    // arquivo camera.txt
-    writeCamDebug();
-    break;
   default:
     break;
   }
@@ -873,36 +862,73 @@ void desenha()
   GUI::displayEnd();
 }
 
+// =============== PICKING ================
+// TODO: alterar tudo aqui (nomes, vars)
+void desenhaPontosDeControle()
+{
+  cout << "func desenhaPontosDeControle" << endl;
+  for (size_t i = 0; i < objetos.size(); i++)
+  {
+    cout << "desenhando objeto " << i << endl;
+    glPushName(i + 1);
+    objetos[i]->desenha();
+    glPopName();
+  }
+}
+
+int picking(GLint cursorX, GLint cursorY, int w, int h)
+{
+  cout << "func picking" << endl;
+  int BUFSIZE = 512;
+  GLuint selectBuf[512];
+  GUI::pickingInit(cursorX, cursorY, w, h, selectBuf, BUFSIZE);
+  GUI::displayInit();
+  objetos[current_object_id]->selected = false;
+  cout << "desenhando pontos de controle" << endl;
+  desenhaPontosDeControle();
+  return GUI::pickingClosestName(selectBuf, BUFSIZE);
+}
+
+void mouse(int button, int state, int x, int y)
+{
+  GUI::mouseButtonInit(button, state, x, y);
+
+  // if the left button is pressed
+  if (button == GLUT_LEFT_BUTTON)
+  {
+    cout << "x: " << x << " y: " << y << endl;
+    // when the button is pressed
+    if (state == GLUT_DOWN)
+    {
+      cout << "down" << endl;
+      // picking
+      int pick = picking(x, y, 5, 5);
+      if (pick != 0)
+      {
+        cout << "pick: " << pick << endl;
+        selecting_state = true;
+        pontoSelecionado = pick;
+
+        cout << "ponto selecionado: " << pontoSelecionado << endl;
+        objetos[pontoSelecionado - 1]->selected = true;
+        current_object_id = pontoSelecionado - 1;
+        glutGUI::lbpressed = false;
+      }
+      else
+      {
+        cout << "pick: " << pick << endl;
+        cout << "nada selecionado" << endl;
+        selecting_state = false;
+      }
+    }
+  }
+}
+
 int main(int argc, char *argv[])
 {
-
-  cout << "CONFIGURAÇÃO DE TECLAS" << endl;
-  cout << "p: Selecionar objeto" << endl;
-  cout << "n: Selecionar próximo objeto" << endl;
-  cout << "b: Selecionar objeto anterior" << endl;
-  cout << "v: Mostrar vetor de coordenadas" << endl;
-  cout << "1: Adicionar mesa" << endl;
-  cout << "2: Adicionar balcão" << endl;
-  cout << "3: Adicionar prateleira" << endl;
-  cout << "4: Adicionar cadeira" << endl;
-  cout << "5: Adicionar barril" << endl;
-  cout << "6: Adicionar canera" << endl;
-  cout << "7: Adicionar armario" << endl;
-  cout << "8: Adicionar palco" << endl;
-  cout << "9: Adicionar microfone" << endl;
-  cout << "[: Adicionar cobertura" << endl;
-  cout << "c: Alternar camera" << endl;
-  cout << "s: Salvar cena" << endl;
-  cout << "t: Transformar objeto" << endl;
-  cout << "l: Mover luz" << endl;
-  cout << "d: Remover objeto selecionado" << endl;
-  cout << "x: Remover ultimo objeto" << endl;
-  cout << "=: Remover arquivo de save e reiniciar" << endl; // TODO: this
-  cout << "q: Fechar" << endl;
-
   readSave();
   // GUI gui(800,600); // (largura, altura)
-  GUI gui = GUI(800, 600, desenha, teclado);
+  GUI gui = GUI(800, 600, desenha, teclado, mouse);
 
   // GUI gui2 = GUI(500, 200, desenha2);
 }
