@@ -74,6 +74,10 @@ float k = 0.0;
 // ------------ picking -----------------------
 size_t pontoSelecionado = 0;
 
+//-------------------viewPorts------------------
+bool viewports = false;
+bool scissored = false;
+
 void transformObjects()
 {
 
@@ -236,7 +240,7 @@ void readSave()
 
     objetos.push_back(balcao);
 
-    /* objetos.push_back(armario_fundo);
+    objetos.push_back(armario_fundo);
     objetos.push_back(barril_armario_fundo_1);
 
     objetos.push_back(prateleira_fundo);
@@ -260,7 +264,7 @@ void readSave()
     objetos.push_back(caneca_1_mesa_2);
 
     objetos.push_back(palco);
-    objetos.push_back(microfone); */
+    objetos.push_back(microfone);
   }
   else
   {
@@ -398,181 +402,12 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
     moving_light_state = !moving_light_state;
     glutGUI::trans_luz = !glutGUI::trans_luz;
     break;
-  case '1':
-    // Criar mesa
-    objetos.push_back(new Mesa(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '2':
-    // Criar balcao
-    objetos.push_back(new Balcao(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '3':
-    // Criar prateleira
-    objetos.push_back(new Prateleira(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '4':
-    // Criar tamborete
-    objetos.push_back(new Tamborete(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '5':
-    // Criar barril
-    objetos.push_back(new Barril(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '6':
-    // Criar caneca
-    objetos.push_back(new Caneca(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '7':
-    // Criar armario
-    objetos.push_back(new Armario(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '8':
-    // Criar palco
-    objetos.push_back(new Palco(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '9':
-    // Criar microfone
-    objetos.push_back(new Microfone(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case '[':
-    // Criar cobertura
-    objetos.push_back(new Cobertura(giveId(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false));
-    break;
-  case 'd':
-    if (selecting_state)
-    {
-      // Deletar objeto
-      objetos.erase(objetos.begin() + current_object_id);
-
-      // Reduzir index
-      if (objetos.size() == 0)
-      {
-        current_object_id = 0;
-        selecting_state = false;
-      }
-
-      // Volta pro id 1
-      current_object_id = 0;
-      objetos[current_object_id]->selected = !objetos[current_object_id]->selected;
-    }
-    break;
-  case 'x':
-    if (selecting_state)
-    {
-      // Obter o ultimo indice
-      current_object_id = objetos.size() - 1;
-
-      // Deletar objeto
-      objetos.erase(objetos.begin() + current_object_id);
-
-      // Reduzir index
-      if (objetos.size() == 0)
-      {
-        current_object_id = 0;
-        selecting_state = false;
-      }
-
-      // Volta pro id 1
-      current_object_id = 0;
-      objetos[current_object_id]->selected = true;
-    }
-    break;
-  case 'u':
-    // Salvar
-    saveScene();
-    break;
   case 's':
     // Sombra
     if (selecting_state)
     {
       drawShadow = !drawShadow;
     }
-  case 'c':
-    camera_presets++;
-    /* cout << "Camera Preset: " << camera_presets << endl; */
-    // Presets de camera
-    switch (camera_presets)
-    {
-    case 0:
-      // Camera inicial
-      break;
-    case 1:
-      // Camera atrás do balcão
-      glutGUI::cam->e.x = -0.41;
-      glutGUI::cam->e.y = 1.9;
-      glutGUI::cam->e.z = -4.75;
-      glutGUI::cam->c.x = -0.53;
-      glutGUI::cam->c.y = 1.69;
-      glutGUI::cam->c.z = -3.43;
-      glutGUI::cam->u.x = -0.015;
-      glutGUI::cam->u.y = 0.987;
-      glutGUI::cam->u.z = 0.16;
-      break;
-    case 2:
-      // Camera no palco (microfone)
-      glutGUI::cam->e.x = 4.235;
-      glutGUI::cam->e.y = 3.018;
-      glutGUI::cam->e.z = -5.60;
-      glutGUI::cam->c.x = 3.60;
-      glutGUI::cam->c.y = 2.54;
-      glutGUI::cam->c.z = -4.15;
-      glutGUI::cam->u.x = -0.12;
-      glutGUI::cam->u.y = 0.96;
-      glutGUI::cam->u.z = 0.27;
-      break;
-    case 3:
-      // Camera na mesa 3 (olhando pro palco)
-      glutGUI::cam->e.x = -2.9;
-      glutGUI::cam->e.y = 1.45;
-      glutGUI::cam->e.z = 5.22;
-      glutGUI::cam->c.x = -0.643;
-      glutGUI::cam->c.y = 1;
-      glutGUI::cam->c.z = 0.176;
-      glutGUI::cam->u.x = 0.032;
-      glutGUI::cam->u.y = 0.997;
-      glutGUI::cam->u.z = -0.0728;
-      break;
-    case 4:
-      // Visão completa zoom out
-      glutGUI::cam->e.x = 11.571;
-      glutGUI::cam->e.y = 12.1003;
-      glutGUI::cam->e.z = 17.1499;
-      glutGUI::cam->c.x = -0.0428;
-      glutGUI::cam->c.y = 1.51;
-      glutGUI::cam->c.z = -0.46;
-      glutGUI::cam->u.x = -0.25;
-      glutGUI::cam->u.y = 0.894;
-      glutGUI::cam->u.z = -0.374;
-      break;
-    case 5:
-      // Visão da mesa pro balcao
-      glutGUI::cam->e.x = 4.535;
-      glutGUI::cam->e.y = 1.446;
-      glutGUI::cam->e.z = 2.134;
-      glutGUI::cam->c.x = 4.034;
-      glutGUI::cam->c.y = 1.390;
-      glutGUI::cam->c.z = 1.993;
-      glutGUI::cam->u.x = -0.102;
-      glutGUI::cam->u.y = 0.994;
-      glutGUI::cam->u.z = -0.0288;
-      break;
-    case 6:
-      // visão do balcao para o palco
-      glutGUI::cam->e.x = -3.16;
-      glutGUI::cam->e.y = 1.28;
-      glutGUI::cam->e.z = -1.78;
-      glutGUI::cam->c.x = -3.067;
-      glutGUI::cam->c.y = 1.27;
-      glutGUI::cam->c.z = -1.81;
-      glutGUI::cam->u.x = -0.0326;
-      glutGUI::cam->u.y = 0.1;
-      glutGUI::cam->u.z = 0.015;
-      break;
-    default:
-      camera_presets = 0;
-      break;
-    }
-    break;
   case 'p':
     objetos[current_object_id]->selected = false;
     // Alterar o modo de seleção
@@ -634,6 +469,117 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
       objetos[current_object_id]->show_coord = !objetos[current_object_id]->show_coord;
     }
     break;
+  case 'u':
+    // Perpectiva: 1 ponto de fuga
+    glutGUI::cam->e.x = 1.5;
+    glutGUI::cam->e.y = -0.25;
+    glutGUI::cam->e.z = 0;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '2':
+    // Perpectiva: 2 pontos de fuga
+    glutGUI::cam->e.x = 1.25;
+    glutGUI::cam->e.y = 0.5;
+    glutGUI::cam->e.z = -1.25;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '0':
+    // Perpectiva: 3 pontos de fuga
+    glutGUI::cam->e.x = 1.5;
+    glutGUI::cam->e.y = -0.25;
+    glutGUI::cam->e.z = 1.5;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '1':
+    // Ortográfica(vista): Frontal
+    glutGUI::cam->e.x = 0;
+    glutGUI::cam->e.y = 0.5;
+    glutGUI::cam->e.z = 2;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 0.5;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '%':
+    // Ortográfica(vista): Lateral
+    glutGUI::cam->e.x = 2;
+    glutGUI::cam->e.y = 0.5;
+    glutGUI::cam->e.z = 0;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 0.5;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '&':
+    // Ortográfica(vista): Planta
+    glutGUI::cam->e.x = 0;
+    glutGUI::cam->e.y = 4;
+    glutGUI::cam->e.z = 0;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 0;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 0;
+    glutGUI::cam->u.z = -1;
+    break;
+  case '*':
+    // Ortográfica(axonométrica): Isométrica
+    glutGUI::cam->e.x = 3;
+    glutGUI::cam->e.y = 2;
+    glutGUI::cam->e.z = 3;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case '(':
+    // Ortográfica(axonométrica): Dimétrica
+    glutGUI::cam->e.x = 3;
+    glutGUI::cam->e.y = 1;
+    glutGUI::cam->e.z = 3;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case ')':
+    // Ortográfica(axonométrica): Trimétrica
+    glutGUI::cam->e.x = 3;
+    glutGUI::cam->e.y = 1;
+    glutGUI::cam->e.z = 2.5;
+    glutGUI::cam->c.x = 0;
+    glutGUI::cam->c.y = 1;
+    glutGUI::cam->c.z = 0;
+    glutGUI::cam->u.x = 0;
+    glutGUI::cam->u.y = 1;
+    glutGUI::cam->u.z = 0;
+    break;
+  case 'j':
+    viewports = !viewports;
+    break;
   default:
     break;
   }
@@ -642,32 +588,11 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
 void montarCena()
 {
 
-  glClearColor(0.53, 0.81, 0.92, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  // FIXME: Merge old code with new code
-  /*   glClearColor(0.53, 0.81, 0.92, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Definir iluminação
-    GUI::setLight(0, 3, 5, 4, true, false);
-
-    // Debug do eixo
-    // GUI::drawOriginAL(5, 1);
-  GUI::setColor(0.8, 0.8, 0.8, 1, true);
-  // Piso
-  GUI::drawFloor(10, 10, 0.5, 0.5);
-
-  // GUI::setColor(0,1,0, 1,true);
-  // GUI::drawBox(0+desl.x,0+desl.y,0+desl.z, 1+desl.x,1+desl.y,1+desl.z);//(x0,y0,z0, xf,yf,zf) */
-
-  // ================================= CODIGO NOVO ============
-  // TODO: Mudar nomes
   // GUI::setLight(0,  3,5,4, true,false);//(tecla de apagar, x,y,z , desligar e ligar luz, (false = forte, true = atenuada))
 
   GUI::drawOrigin(1); // tamanho de cada eixo
 
-  GUI::setColor(0.8, 0.8, 0.8, 1, true);
+  GUI::setColor(0.0118, 0.7333, 0.5216, 1, true); //(red,green,blue,opacidade,componente_de_reflexão)
 
   glPushMatrix();
   //-------------------sombra-------------------
@@ -679,17 +604,9 @@ void montarCena()
   // GUI::drawPlane(Vetor3D(0,1,0), k, 15, 15, 0.5, 0.5);
   //-------------------sombra-------------------
   glPopMatrix();
-  // ============= FIM CODIGO NOVO ========================
-
-  // Adiciona as paredes
-  /*   glPushMatrix();
-    paredeLeft->desenha();
-    paredeBack->desenha();
-    glPopMatrix(); */
 
   for (int i = 0; i < objetos.size(); ++i)
   {
-    // Itera pelos objetos e desenha
     glPushMatrix();
     objetos[i]->desenha();
     glPopMatrix();
@@ -775,6 +692,32 @@ void sombra_plano_qualquer(GLfloat plano[4], float lightPos[4])
   }
 }
 
+void desenha_viewports_gerais()
+{
+  GUI::displayInit();
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glViewport(0, 0, glutGUI::width / 2, glutGUI::height / 2);
+  gluLookAt(glutGUI::cam->e.x, glutGUI::cam->e.y, glutGUI::cam->e.z, glutGUI::cam->c.x, glutGUI::cam->c.y, glutGUI::cam->c.z, glutGUI::cam->u.x, glutGUI::cam->u.y, glutGUI::cam->u.z);
+  montarCena();
+
+  glLoadIdentity();
+  glViewport(0, glutGUI::height / 2, glutGUI::width / 2, glutGUI::height / 2);
+  gluLookAt(0, 10, 0, 0, 0, 0, 0, 0, 1);
+  montarCena();
+
+  glLoadIdentity();
+  glViewport(glutGUI::width / 2, 0, glutGUI::width / 2, glutGUI::height / 2);
+  gluLookAt(0, 1, -10, 0, 1, 0, 0, 1, 0);
+  montarCena();
+
+  glLoadIdentity();
+  glViewport(glutGUI::width / 2, glutGUI::height / 2, glutGUI::width / 2, glutGUI::height / 2);
+  gluLookAt(10, 1, 0, 0, 1, 0, 0, 1, 0);
+  montarCena();
+}
+
 // TODO: Mudar nome
 void mostrarSombrasNosPlanos()
 {
@@ -815,7 +758,15 @@ void desenha()
 {
   GUI::displayInit();
 
-  montarCena();
+  if (!viewports)
+  {
+
+    montarCena();
+  }
+  else
+  {
+    desenha_viewports_gerais();
+  }
 
   // TODO: Alterar nomes
   if (sombras_planos)
@@ -830,12 +781,12 @@ void desenha()
 
 // =============== PICKING ================
 // TODO: alterar tudo aqui (nomes, vars)
+// TODO:Fix picking
 void desenhaPontosDeControle()
 {
   cout << "func desenhaPontosDeControle" << endl;
   for (size_t i = 0; i < objetos.size(); i++)
   {
-    cout << "desenhando objeto " << i << endl;
     glPushName(i + 1);
     objetos[i]->desenha();
     glPopName();
@@ -844,13 +795,12 @@ void desenhaPontosDeControle()
 
 int picking(GLint cursorX, GLint cursorY, int w, int h)
 {
-  cout << "func picking" << endl;
+
   int BUFSIZE = 512;
   GLuint selectBuf[512];
   GUI::pickingInit(cursorX, cursorY, w, h, selectBuf, BUFSIZE);
   GUI::displayInit();
   objetos[current_object_id]->selected = false;
-  cout << "desenhando pontos de controle" << endl;
   desenhaPontosDeControle();
   return GUI::pickingClosestName(selectBuf, BUFSIZE);
 }
@@ -892,9 +842,10 @@ void mouse(int button, int state, int x, int y)
 
 int main(int argc, char *argv[])
 {
+
   readSave();
   // GUI gui(800,600); // (largura, altura)
   GUI gui = GUI(800, 600, desenha, teclado, mouse);
-
+  // TODO: GUI gui = GUI(800, 600, desenha, teclado, mouse);
   // GUI gui2 = GUI(500, 200, desenha2);
 }

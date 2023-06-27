@@ -99,9 +99,9 @@ void Balcao::criar()
     Esse retangulo se extende atras do retangulo 1 e no fim do retangulo 1
 
     FORMATO:
-         ##
-         ##
-         ##
+        ##
+        ##
+        ##
   */
 
   // Face lateral direita
