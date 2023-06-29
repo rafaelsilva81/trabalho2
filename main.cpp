@@ -176,9 +176,9 @@ void readSave()
     Caneca *caneca_1_mesa_1 = new Caneca(giveId(), 3.1, 1, 2.1, 0.0, 90.0, 0.0, 1.0, 1.0, 1.0, false, false);
     Caneca *caneca_2_mesa_1 = new Caneca(giveId(), 2.8, 1, 2, 0.0, -90.0, 0.0, 1.0, 1.0, 1.0, false, false);
 
-    Mesa *mesa_2 = new Mesa(giveId(), -3.0, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    Tamborete *tamborete_1_mesa_2 = new Tamborete(giveId(), -3.6, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
-    Caneca *caneca_1_mesa_2 = new Caneca(giveId(), -3.1, 1, 0.6, 0.0, -84.0, 0.0, 1.0, 1.0, 1.0, false, false);
+    Mesa *mesa_2 = new Mesa(giveId(), -2.5, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
+    Tamborete *tamborete_1_mesa_2 = new Tamborete(giveId(), -3.2, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, false, false);
+    Caneca *caneca_1_mesa_2 = new Caneca(giveId(), -2.8, 1, 0.6, 0.0, -84.0, 0.0, 1.0, 1.0, 1.0, false, false);
 
     Palco *palco = new Palco(giveId(), 4, 0.0, -4.5, 0.0, 0.0, 0.0, 0.6, 0.9, 0.9, false, false);
     Microfone *microfone = new Microfone(giveId(), 3.5, 0.85, -3.8, 0.0, 50.0, 0.0, 0.6, 0.9, 0.9, false, false);
@@ -293,7 +293,7 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
     // mostra sombras em planos arbitrários(parede, chão, plano inclinado)
     sombras_planos = !sombras_planos;
     break;
-  case 'o':
+  case 'i':
     // Troca entre luz pontual próxima e luz distante
     tipo_luz = !tipo_luz;
     break;
@@ -428,11 +428,10 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
     glutGUI::cam->u.y = 1;
     glutGUI::cam->u.z = 0;
     break;
-  case 'i':
+  case 'o':
     // Isométrica
     glutGUI::perspective = !glutGUI::perspective;
     break;
-
   default:
     break;
   }
@@ -455,10 +454,6 @@ void montarCena()
   glTranslated(0.0, k, 0.0); // glTranslated(0.0,k-0.001,0.0);
   GUI::setColor(0.8, 0.8, 0.8, 1, true);
   GUI::drawFloor(10, 10, 0.1, 0.1); //(largura, comprimento, vertices largura, vertices comprimento)
-
-  // GUI::drawPlane(Vetor3D(2,2,3), k, 15, 15, 0.5, 0.5); //chama o drawFloor dentro //-0.001 definido dentro do drawFloor
-  // GUI::drawPlane(Vetor3D(0,0,1), k, 15, 15, 0.5, 0.5);
-  // GUI::drawPlane(Vetor3D(0,1,0), k, 15, 15, 0.5, 0.5);
   //-------------------sombra-------------------
   glPopMatrix();
 
@@ -476,35 +471,11 @@ void montarCena()
   GUI::setLight(0, 3, 5, 4, true, false, false, false, tipo_luz);
   // desenhando os objetos projetados
   glPushMatrix();
-  // matriz p multiplicar tudo por -1
-  // float neg[16] = {
-  //                    -1.0, 0.0, 0.0, 0.0,
-  //                     0.0,-1.0, 0.0, 0.0,
-  //                     0.0, 0.0,-1.0, 0.0,
-  //                     0.0, 0.0, 0.0,-1.0
-  //                 };
-  // glMultTransposeMatrixf( neg );
-  // matriz de projecao para gerar sombra no plano y=k
+
   GLfloat sombra[4][4];
   GUI::shadowMatrixYk(sombra, lightPos, k);
-  // GLfloat plano[4] = {0,1,0,-k};
-  // GUI::shadowMatrix(sombra,plano,lightPos);
-  glMultTransposeMatrixf((GLfloat *)sombra);
 
-  // matriz de projecao para gerar sombra no plano y=k
-  // GLfloat sombra[4][4];
-  // GUI::shadowMatrixYk(sombra,lightPos,k);
-  // GLfloat plano[4] = {0,1,0,-k};
-  // GLfloat plano[4] = {0,0,1,-k};
-  // GLfloat plano[4] = {1,1,0,-k};
-  // GLfloat plano[4] = {sqrt(2)/2.,sqrt(2)/2.,0,-k}; //      2/4 + 2/4 + 0 = 1
-  // versao plano arbitrario passando coeficiente D do plano (não intuitivo p usuario - diferente de acordo com o tamanho do n)
-  // GLfloat plano[4] = {2,2,3,-k}; //D = -k
-  // GUI::shadowMatrix(sombra,plano,lightPos);
-  // versao plano arbitrario passando dist minima do plano para a origem (mais intuitivo p usuario)
-  // GLfloat distMin = k; //sinal indica se a distancia é no sentido da normal ou contrário
-  // GUI::shadowMatrix(sombra, Vetor3D(2,2,3), distMin, lightPos);
-  // glMultTransposeMatrixf( (GLfloat*)sombra );
+  glMultTransposeMatrixf((GLfloat *)sombra);
 
   glDisable(GL_LIGHTING);
   glColor3d(0.0, 0.0, 0.0);
@@ -518,11 +489,6 @@ void montarCena()
     glutGUI::draw_eixos = aux;
   }
   glEnable(GL_LIGHTING);
-
-  // glDisable(GL_LIGHTING);
-  // glColor3d(0.0,0.0,0.0);
-  // if (drawShadow) desenhaObjetosComSombra();
-  // glEnable(GL_LIGHTING);
   glPopMatrix();
   //-------------------sombra-------------------
 }
@@ -549,6 +515,42 @@ void sombra_plano_qualquer(GLfloat plano[4], float lightPos[4])
   }
 }
 
+// TODO: Mudar nome
+void mostrarSombrasNosPlanos()
+{
+  float lightPos[4] = {glutGUI::lx, glutGUI::ly, glutGUI::lz, tipo_luz ? 1.0f : 0.0f};
+
+  GUI::setLight(0, lightPos[0], lightPos[1], lightPos[2], true, false, false, false, tipo_luz);
+  GLfloat plano_chao[4] = {0, 1, 0, -0.001};
+  sombra_plano_qualquer(plano_chao, lightPos);
+
+  // lateral
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  GUI::drawBox(-5, 0, -5, -4.8, 5, 5);
+  glPopMatrix();
+  GLfloat plano_lateral[4] = {0.63, 0, 0, 3.00 - 0.001};
+  sombra_plano_qualquer(plano_lateral, lightPos);
+
+  // frente
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  GUI::drawBox(-4.8, 0, -5, 5, 5, -4.8);
+  glPopMatrix();
+  GLfloat plano_frente[4] = {0, 0, 0.63, 3.00 - 0.001};
+  sombra_plano_qualquer(plano_frente, lightPos);
+
+  // inclinado
+  GUI::setColor(1, 0.98, 0.98);
+  glPushMatrix();
+  glTranslatef(-4.04, 0, -2.5);
+  glRotatef(-45, 0, 0, 1);
+  GUI::drawQuad(2, 5);
+  glPopMatrix();
+  GLfloat plano_inclinado[4] = {0.63, 0.63, 0, 2.54 - 0.001};
+  sombra_plano_qualquer(plano_inclinado, lightPos);
+}
+
 void desenha_viewports_gerais()
 {
   GUI::displayInit();
@@ -573,42 +575,6 @@ void desenha_viewports_gerais()
   glViewport(glutGUI::width / 2, glutGUI::height / 2, glutGUI::width / 2, glutGUI::height / 2);
   gluLookAt(10, 1, 0, 0, 1, 0, 0, 1, 0);
   montarCena();
-}
-
-// TODO: Mudar nome
-void mostrarSombrasNosPlanos()
-{
-  float lightPos[4] = {glutGUI::lx, glutGUI::ly, glutGUI::lz, tipo_luz ? 1.0f : 0.0f};
-
-  GUI::setLight(0, lightPos[0], lightPos[1], lightPos[2], true, false, false, false, tipo_luz);
-  GLfloat plano_chao[4] = {0, 1, 0, -0.001};
-  sombra_plano_qualquer(plano_chao, lightPos);
-
-  // lateral
-  GUI::setColor(1, 0.98, 0.98);
-  glPushMatrix();
-  GUI::drawBox(-5, 0, -5, -4.77, 5, 0);
-  glPopMatrix();
-  GLfloat plano_lateral[4] = {0.63, 0, 0, 3.00 - 0.001};
-  sombra_plano_qualquer(plano_lateral, lightPos);
-
-  // frente
-  GUI::setColor(1, 0.98, 0.98);
-  glPushMatrix();
-  GUI::drawBox(-4.77, 0, -5, 0, 5, -4.77);
-  glPopMatrix();
-  GLfloat plano_frente[4] = {0, 0, 0.63, 3.00 - 0.001};
-  sombra_plano_qualquer(plano_frente, lightPos);
-
-  // inclinado
-  GUI::setColor(1, 0.98, 0.98);
-  glPushMatrix();
-  glTranslatef(-4.04, 0, -2.5);
-  glRotatef(-45, 0, 0, 1);
-  GUI::drawQuad(2, 5);
-  glPopMatrix();
-  GLfloat plano_inclinado[4] = {0.63, 0.63, 0, 2.54 - 0.001};
-  sombra_plano_qualquer(plano_inclinado, lightPos);
 }
 
 void desenha()
