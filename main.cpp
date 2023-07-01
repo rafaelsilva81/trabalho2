@@ -121,14 +121,14 @@ void readSave()
   objetos.push_back(prateleira_fundo);
   /* objetos.push_back(caneca_prateleira_fundo_1); */
 
-  /* objetos.push_back(tamborete_balcao_1); */
+  objetos.push_back(tamborete_balcao_1);
 
   /* objetos.push_back(caneca_balcao_1); */
 
   objetos.push_back(mesa_1);
   objetos.push_back(tamborete_1_mesa_1);
-  /* objetos.push_back(tamborete_2_mesa_1); */
-  /* objetos.push_back(caneca_1_mesa_1); */
+  objetos.push_back(tamborete_2_mesa_1);
+  /*   objetos.push_back(caneca_1_mesa_1); */
   /* objetos.push_back(caneca_2_mesa_1); */
 
   objetos.push_back(mesa_2);
@@ -150,7 +150,7 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
       drawShadow = !drawShadow;
     }
     break;
-  case 't':
+  case 'p':
     // mostra sombras em planos arbitrários(parede, chão, plano inclinado)
     shadowsWalls = !shadowsWalls;
     break;
@@ -159,7 +159,7 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
     lightMode = !lightMode;
     break;
   // ------------------------- TECLAS: legado -------------------------
-  case 'p':
+  case 't':
     /*  objetos[current_object_id]->selected = false;
      // Alterar o modo de seleção
      selecting_state = !selecting_state;
@@ -350,7 +350,6 @@ void montarCena()
   //-------------------sombra-------------------
 }
 
-// TODO: Mudar nome
 void sombraPlano(GLfloat plano[4], float lightPos[4])
 {
   bool aux = glutGUI::draw_eixos;
@@ -462,7 +461,6 @@ void desenhaPontosDeControle()
 {
   for (size_t i = 0; i < objetos.size(); i++)
   {
-    cout << "desenhando objeto " << i << endl;
     glPushName(i + 1);
     objetos[i]->desenha();
     glPopName();
@@ -497,7 +495,7 @@ void mouse(int button, int state, int x, int y)
         selecting_state = true;
         selectedPoint = pick;
         objetos[selectedPoint - 1]->selected = true;
-        selectedPoint = selectedPoint - 1;
+        current_object_id = selectedPoint - 1;
         glutGUI::lbpressed = false;
       }
       else
