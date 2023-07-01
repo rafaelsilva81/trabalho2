@@ -60,7 +60,7 @@ std::ofstream myfile;
 bool sombras_planos = false;
 bool drawShadow = false;
 bool tipo_luz = true;
-float k = 0.0;
+float k = -0.01;
 
 // ------------ picking -----------------------
 size_t pontoSelecionado = 0;
@@ -440,9 +440,6 @@ void teclado(unsigned char tecla, int mouseX, int mouseY)
 void montarCena()
 {
 
-  glClearColor(0.53, 0.81, 0.92, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   // GUI::setLight(0,  3,5,4, true,false);//(tecla de apagar, x,y,z , desligar e ligar luz, (false = forte, true = atenuada))
 
   GUI::drawOrigin(1); // tamanho de cada eixo
@@ -453,7 +450,7 @@ void montarCena()
   //-------------------sombra-------------------
   glTranslated(0.0, k, 0.0); // glTranslated(0.0,k-0.001,0.0);
   GUI::setColor(0.8, 0.8, 0.8, 1, true);
-  GUI::drawFloor(10, 10, 0.1, 0.1); //(largura, comprimento, vertices largura, vertices comprimento)
+  GUI::drawFloor(10, 10, 3, 0.1); //(largura, comprimento, vertices largura, vertices comprimento)
   //-------------------sombra-------------------
   glPopMatrix();
 
@@ -581,9 +578,11 @@ void desenha()
 {
   GUI::displayInit();
 
+  glClearColor(0.53, 0.81, 0.92, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+
   if (!viewports)
   {
-
     montarCena();
   }
   else
@@ -604,7 +603,6 @@ void desenha()
 
 int main(int argc, char *argv[])
 {
-
   readSave();
   // GUI gui(800,600); // (largura, altura)
   GUI gui = GUI(800, 600, desenha, teclado);
